@@ -1,3 +1,5 @@
+![license](http://img.shields.io/badge/license-Apache%20v2-blue.svg)
+
 solr-client-go
 =======
 
