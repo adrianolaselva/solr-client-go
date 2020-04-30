@@ -2,6 +2,19 @@
 // 
 package solr
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+)
+
+type WT string
+
+const (
+	JSON	WT	=	"json"
+	XML		WT	=	"xml"
+)
+
 type CollectionAction string
 
 const (
@@ -9,6 +22,7 @@ const (
 	ReloadAction			CollectionAction			=	"RELOAD"
 	ModifyCollectionAction	CollectionAction			=	"MODIFYCOLLECTION"
 	ListAction				CollectionAction			=	"LIST"
+	RenameAction			CollectionAction			=	"RENAME"
 	DeleteAction			CollectionAction			=	"DELETE"
 	CollectionPropAction	CollectionAction			=	"COLLECTIONPROP"
 	MigrateAction			CollectionAction			=	"MIGRATE"
@@ -27,20 +41,6 @@ const (
 	Status 					ReindexCollectionCmd 		= "status"
 )
 
-type ModifyCollectionAttribute string
-
-const (
-	MaxShardsPerNode 		ModifyCollectionAttribute 	= "maxShardsPerNode"
-	ReplicationFactor 		ModifyCollectionAttribute 	= "replicationFactor"
-	AutoAddReplicas 		ModifyCollectionAttribute 	= "autoAddReplicas"
-	CollectionConfigName 	ModifyCollectionAttribute 	= "collection.configName"
-	Rule 					ModifyCollectionAttribute 	= "rule"
-	Snitch 					ModifyCollectionAttribute 	= "snitch"
-	Policy 					ModifyCollectionAttribute 	= "policy"
-	WithCollection 			ModifyCollectionAttribute 	= "withCollection"
-	ReadOnly 				ModifyCollectionAttribute 	= "readOnly"
-)
-
 type RawSizeSamplingPercent string
 
 const (
@@ -57,13 +57,13 @@ const (
 	Points					RawSizeSamplingPercent		= "norms"
 )
 
-type Collection struct {
+type collectionBase struct {
 	Action 					CollectionAction		`url:"action,omitempty"`
-	WT 						string					`url:"wt,omitempty"`
+	WT 						WT						`url:"wt,omitempty"`
 }
 
 type CollectionCreate struct {
-	Collection
+	collectionBase
 	// The name of the collection to be created. This parameter is required.
 	Name 					string 		`url:"name,omitempty"`
 
@@ -89,30 +89,30 @@ type CollectionCreate struct {
 
 	// The number of shards to be created as part of the collection.
 	// This is a required parameter when the router.name is compositeId.
-	NumShards 				string 		`url:"numShards,omitempty"`
+	NumShards 				int 		`url:"numShards,omitempty"`
 
 	// A comma separated list of shard names, e.g., shard-x,shard-y,shard-z.
 	// This is a required parameter when the router.name is implicit.
-	Shards 					string 		`url:"shards,omitempty"`
+	Shards 					int 		`url:"shards,omitempty"`
 
 	// The number of replicas to be created for each shard. The default is 1.
 	// 
 	// This will create a NRT type of replica. If you want another type of replica,
 	// see the tlogReplicas and pullReplica parameters below. See the section Types
 	// of Replicas for more information about replica types.
-	ReplicationFactor 		string 		`url:"replicationFactor,omitempty"`
+	ReplicationFactor 		int 		`url:"replicationFactor,omitempty"`
 
 	// The number of NRT (Near-Real-Time) replicas to create for this collection.
 	// This type of replica maintains a transaction log and updates its index locally.
 	// If you want all of your replicas to be of this type, you can simply use
 	// replicationFactor instead.
-	NrtReplicas 			string 		`url:"nrtReplicas,omitempty"`
+	NrtReplicas 			int 		`url:"nrtReplicas,omitempty"`
 
 	// The number of TLOG replicas to create for this collection.
 	// This type of replica maintains a transaction log but only updates
 	// its index via replication from a leader. See the section Types of
 	// Replicas for more information about replica types.
-	TLogReplicas 			string 		`url:"tlogReplicas,omitempty"`
+	TLogReplicas 			int 		`url:"tlogReplicas,omitempty"`
 
 	// The number of PULL replicas to create for this collection.
 	// This type of replica does not maintain a transaction log and only
@@ -120,7 +120,7 @@ type CollectionCreate struct {
 	// eligible to become a leader and should not be the only type of replicas
 	// in the collection. See the section Types of Replicas for more information
 	// about replica types.
-	PullReplicas 			string 		`url:"pullReplicas,omitempty"`
+	PullReplicas 			int 		`url:"pullReplicas,omitempty"`
 
 	// When creating collections, the shards and/or replicas are spread across all
 	// available (i.e., live) nodes, and two replicas of the same shard will never
@@ -211,23 +211,23 @@ type CollectionCreate struct {
 	Alias 					string 		`url:"alias,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 }
 
 type CollectionReload struct {
-	Collection
+	collectionBase
 
 	// The name of the collection to reload. This parameter is required.
 	Name 					string 		`url:"name,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 }
 
 type CollectionModifyCollection struct {
-	Collection
+	collectionBase
 	// The name of the collection to be modified. This parameter is required.
-	CollectionName 				string 							`url:"collection,omitempty"`
+	Collection 				string 							`url:"collection,omitempty"`
 
 	// Key-value pairs of attribute names and attribute values.
 	// At least one attribute parameter is required.
@@ -245,15 +245,23 @@ type CollectionModifyCollection struct {
 	// any new update requests are rejected with 403 FORBIDDEN error code (ongoing long-running requests
 	// are aborted, too),
 	// a forced commit is performed to flush and commit any in-flight updates.
-	Attribute 					ModifyCollectionAttribute 		`url:"attribute,omitempty"`
+	MaxShardsPerNode 		int 							`url:"maxShardsPerNode,omitempty"`
+	ReplicationFactor 		int 							`url:"replicationFactor,omitempty"`
+	AutoAddReplicas 		int 							`url:"autoAddReplicas,omitempty"`
+	ConfigName 				string 							`url:"collection.configName,omitempty"`
+	Rule 					string 							`url:"rule,omitempty"`
+	Snitch 					string 							`url:"snitch,omitempty"`
+	Policy 					string 							`url:"policy,omitempty"`
+	WithCollection 			string 							`url:"withCollection,omitempty"`
+	ReadOnly 				bool 							`url:"readOnly,omitempty"`
 }
 
 type CollectionList struct {
-	Collection
+	collectionBase
 }
 
 type CollectionRename struct {
-	Collection
+	collectionBase
 
 	// Name of the existing SolrCloud collection or an alias that refers to exactly one collection
 	// and is not a Routed Alias.
@@ -267,17 +275,17 @@ type CollectionRename struct {
 }
 
 type CollectionDelete struct {
-	Collection
+	collectionBase
 
 	// The name of the collection to delete. This parameter is required.
 	Name 					string 		`url:"name,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 }
 
 type CollectionProp struct {
-	Collection
+	collectionBase
 
 	// The name of the collection for which the property would be set.
 	Name 					string 		`url:"name,omitempty"`
@@ -290,10 +298,10 @@ type CollectionProp struct {
 }
 
 type CollectionMigrate struct {
-	Collection
+	collectionBase
 
 	// The name of the source collection from which documents will be split. This parameter is required.
-	CollectionName 			string 		`url:"collection,omitempty"`
+	Collection 			string 		`url:"collection,omitempty"`
 
 	// The name of the target collection to which documents will be migrated. This parameter is required.
 	TargetCollection 		string 		`url:"target.collection,omitempty"`
@@ -304,18 +312,18 @@ type CollectionMigrate struct {
 
 	// The timeout, in seconds, until which write requests made to the source collection for the
 	// given split.key will be forwarded to the target shard. The default is 60 seconds.
-	ForwardTimeout 			string 		`url:"forward.timeout,omitempty"`
+	ForwardTimeout 			int 		`url:"forward.timeout,omitempty"`
 
 	// Set core property name to value. See the section Defining core.properties for details
 	// on supported properties and values.
 	PropertyName 			string 		`url:"property.name,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 }
 
 type CollectionReindex struct {
-	Collection
+	collectionBase
 
 	// The name of the source collection from which documents will be split. This parameter is required.
 	Name 					string 						`url:"name,omitempty"`
@@ -356,14 +364,14 @@ type CollectionReindex struct {
 	RemoveSource 			string 						`url:"removeSource,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 						`url:"async,omitempty"`
 }
 
 type CollectionColStatus struct {
-	Collection
+	collectionBase
 
 	// Collection name (optional). If missing then it means all collections.
-	CollectionName 				string 		`url:"collection,omitempty"`
+	Collection 				string 		`url:"collection,omitempty"`
 
 	// Optional boolean. If true then additional information will be provided about SolrCore of shard leaders.
 	CoreInfo 					string 		`url:"coreInfo,omitempty"`
@@ -435,10 +443,10 @@ type CollectionColStatus struct {
 }
 
 type CollectionBackup struct {
-	Collection
+	collectionBase
 
 	// The collection where the indexes will be restored into. This parameter is required.
-	CollectionName 			string 		`url:"collection,omitempty"`
+	Collection 			string 		`url:"collection,omitempty"`
 
 	// The name of the existing backup that you want to restore. This parameter is required.
 	Name 					string 		`url:"name,omitempty"`
@@ -448,14 +456,14 @@ type CollectionBackup struct {
 	Location 				string 		`url:"location,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 }
 
 type CollectionRestore struct {
-	Collection
+	collectionBase
 
 	// The collection where the indexes will be restored into. This parameter is required.
-	CollectionName 			string 		`url:"collection,omitempty"`
+	Collection 			string 		`url:"collection,omitempty"`
 
 	// The name of the existing backup that you want to restore. This parameter is required.
 	Name 					string 		`url:"name,omitempty"`
@@ -465,7 +473,7 @@ type CollectionRestore struct {
 	Location 				string 		`url:"location,omitempty"`
 
 	// Request ID to track this action which will be processed asynchronously.
-	Async 					string 		`url:"async,omitempty"`
+	Async 					bool 		`url:"async,omitempty"`
 
 	// The name of a repository to be used for the backup. If no repository is specified then the
 	// local filesystem repository will be used automatically.
@@ -476,22 +484,22 @@ type CollectionRestore struct {
 	CollectionConfigName 	string 		`url:"collection.configName,omitempty"`
 
 	// The number of replicas to be created for each shard.
-	ReplicationFactor 		string 		`url:"replicationFactor,omitempty"`
+	ReplicationFactor 		int 		`url:"replicationFactor,omitempty"`
 
 	// The number of NRT (Near-Real-Time) replicas to create for this collection. This type of replica
 	// maintains a transaction log and updates its index locally. This parameter behaves the same way
 	// as setting replicationFactor parameter.
-	NrtReplicas 			string 		`url:"nrtReplicas,omitempty"`
+	NrtReplicas 			int 		`url:"nrtReplicas,omitempty"`
 
 	// The number of TLOG replicas to create for this collection. This type of replica maintains a
 	// transaction log but only updates its index via replication from a leader. See the section Types of
 	// Replicas for more information about replica types.
-	TLogReplicas 			string 		`url:"tlogReplicas,omitempty"`
+	TLogReplicas 			int 		`url:"tlogReplicas,omitempty"`
 
 	// The number of TLOG replicas to create for this collection. This type of replica maintains a
 	// transaction log but only updates its index via replication from a leader. See the section Types
 	// of Replicas for more information about replica types.
-	PullReplicas 			string 		`url:"pullReplicas,omitempty"`
+	PullReplicas 			int 		`url:"pullReplicas,omitempty"`
 
 	// When creating collections, the shards and/or replicas are spread across all available (i.e., live)
 	// nodes, and two replicas of the same shard will never be on the same node.
@@ -512,10 +520,10 @@ type CollectionRestore struct {
 }
 
 type CollectionRebalanceLeaders struct {
-	Collection
+	collectionBase
 
 	// The collection where the indexes will be restored into. This parameter is required.
-	CollectionName 			string 		`url:"collection,omitempty"`
+	Collection 			string 		`url:"collection,omitempty"`
 
 	// The maximum number of reassignments to have queue up at once. Values <=0 are use the default
 	// value Integer.MAX_VALUE.
@@ -533,73 +541,367 @@ type CollectionRebalanceLeaders struct {
 	MaxWaitSeconds 			string 		`url:"maxWaitSeconds,omitempty"`
 }
 
+type Collection struct {
+	config *Config
+}
+
+func NewCollection(config *Config) Collection {
+	return Collection{config: config}
+}
+
 // CREATE: Create a Collection
 func (c *Collection) Create(collection CollectionCreate) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = CreateAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // RELOAD: Reload a Collection
 func (c *Collection) Reload(collection CollectionReload) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = ReloadAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // MODIFYCOLLECTION: Modify Attributes of a Collection
-func (c *Collection) ModifyCollection(collection CollectionModifyCollection) (*Response, error) {
-	return nil, nil
+func (c *Collection) Modify(collection CollectionModifyCollection) (*Response, error) {
+	collection.WT = JSON
+	collection.Action = ModifyCollectionAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // LIST: List Collections
 func (c *Collection) List() (*Response, error) {
-	return nil, nil
+	url, err := c.config.getUrl("/admin/collections", collectionBase{
+		Action: ListAction,
+		WT:     JSON,
+	})
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // RENAME: Rename a Collection
-func (c *Collection) RenameCollection(collection CollectionRename) (*Response, error) {
-	return nil, nil
+func (c *Collection) Rename(collection CollectionRename) (*Response, error) {
+	collection.WT = JSON
+	collection.Action = RenameAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // DELETE: Delete a Collection
 func (c *Collection) Delete(collection CollectionDelete) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = DeleteAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // COLLECTIONPROP: Collection Properties
 // Add, edit or delete a collection property.
 func (c *Collection) CollectionProp(collection CollectionProp) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = CollectionPropAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // MIGRATE: Migrate Documents to Another Collection
 func (c *Collection) Migrate(collection CollectionMigrate) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = MigrateAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // REINDEXCOLLECTION: Re-Index a Collection
 func (c *Collection) ReindexCollection(collection CollectionReindex) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = ReindexCollectionAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // COLSTATUS: Detailed Status of a Collection’s Indexes
 // The COLSTATUS command provides a detailed description of the collection status, including low-level
 // index information about segments and field data.
 func (c *Collection) ColStatus(collection CollectionColStatus) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = ColStatusAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // BACKUP: Backup Collection
 // Backs up Solr collections and associated configurations to a shared filesystem - for example a Network File System.
 func (c *Collection) Backup(collection CollectionBackup) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = BackupAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // RESTORE: Restore Collection
 // Restores Solr indexes and associated configurations.
 func (c *Collection) Restore(collection CollectionRestore) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = RestoreAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // REBALANCELEADERS: Rebalance Leaders
 // Reassigns leaders in a collection according to the preferredLeader property across active nodes.
 func (c *Collection) RebalanceLeaders(collection CollectionRebalanceLeaders) (*Response, error) {
-	return nil, nil
+	collection.WT = JSON
+	collection.Action = RebalanceLeadersAction
+
+	url, err := c.config.getUrl("/admin/collections", collection)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(url)
+	resp, err := c.config.http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
