@@ -1,22 +1,19 @@
 package solr
 
-import (
-	"testing"
-)
-
+import "testing"
 
 func TestCollectionCreate(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
+	
+	client := NewClient(config)
 
-	collection := NewCollection(config)
-
-	response, err := collection.Create(CollectionCreate{
-		Name:                 "client-solr",
+	response, err := client.Collection.Create(CollectionCreate{
+		Name:                 "collection-test",
 		RouterName:           "compositeId",
 		NumShards:            1,
-		CollectionConfigName: "client-solr.AUTOCREATED",
+		ReplicationFactor: 	  1,
+		CollectionConfigName: "_default",
 		Async:                false,
 	})
 	if err != nil {
@@ -30,13 +27,12 @@ func TestCollectionCreate(t *testing.T) {
 
 func TestCollectionReload(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Reload(CollectionReload{
-		Name:           "client-solr",
+	response, err := client.Collection.Reload(CollectionReload{
+		Name:           "collection-test",
 		Async:          false,
 	})
 	if err != nil {
@@ -50,13 +46,12 @@ func TestCollectionReload(t *testing.T) {
 
 func TestCollectionModify(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Modify(CollectionModifyCollection{
-		Collection: "client-solr",
+	response, err := client.Collection.Modify(CollectionModifyCollection{
+		Collection: "collection-test",
 		MaxShardsPerNode:      1,
 	})
 	if err != nil {
@@ -70,12 +65,11 @@ func TestCollectionModify(t *testing.T) {
 
 func TestCollectionList(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.List()
+	response, err := client.Collection.List()
 	if err != nil {
 		t.Errorf("failed to list collections %v", err)
 	}
@@ -87,13 +81,12 @@ func TestCollectionList(t *testing.T) {
 
 func TestCollectionProp(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.CollectionProp(CollectionProp{
-		Name:           "client-solr",
+	response, err := client.Collection.CollectionProp(CollectionProp{
+		Name:           "collection-test",
 		PropertyName:   "timestamp",
 		PropertyValue:  "dateTime",
 	})
@@ -108,14 +101,13 @@ func TestCollectionProp(t *testing.T) {
 
 func TestCollectionRename(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Rename(CollectionRename{
-		Name:           "client-solr",
-		Target:         "client-solr",
+	response, err := client.Collection.Rename(CollectionRename{
+		Name:           "collection-test",
+		Target:         "collection-test",
 	})
 	if err != nil {
 		t.Errorf("failed to rename collection %v", err)
@@ -128,31 +120,30 @@ func TestCollectionRename(t *testing.T) {
 
 func TestCollectionMigrate(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Create(CollectionCreate{
-		Name:                 "client-solr-migrate",
-		RouterName:           "compositeId",
-		NumShards:            2,
+	response, err := client.Collection.Create(CollectionCreate{
+		Name:                 "collection-test-migrate",
+		NumShards:            1,
+		ReplicationFactor: 	  1,
 		CollectionConfigName: "_default",
 		Async:                false,
 	})
 	if err != nil {
-		t.Errorf("failed to create collection client-solr-migrate %v", err)
+		t.Errorf("failed to create collection collection-test-migrate %v", err)
 	}
 
 	if response.Header.Status != 0 {
-		t.Errorf("failed to create collection client-solr-migrate %v", err)
+		t.Errorf("failed to create collection collection-test-migrate %v", err)
 	}
 
-	response, err = collection.Migrate(CollectionMigrate{
-		Collection:       "client-solr",
-		TargetCollection: "client-solr-migrate",
+	response, err = client.Collection.Migrate(CollectionMigrate{
+		Collection:       "collection-test",
+		TargetCollection: "collection-test-migrate",
 		SplitKey:         "a!",
-		ForwardTimeout:   10000,
+		ForwardTimeout:   100000,
 		Async:            false,
 	})
 	if err != nil {
@@ -164,60 +155,78 @@ func TestCollectionMigrate(t *testing.T) {
 	}
 }
 
-func TestCollectionBackup(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+//func TestCollectionBackup(t *testing.T) {
+//
+//	config := NewConfig().
+//		SetUrl("http://127.0.0.1:8981")
+//
+//	backupFilePath := fmt.Sprintf("bkp_%x", md5.Sum([]byte(time.Now().String())))[0:10]
+//
+//	client := NewClient(config)
+//
+//	response, err := client.Collection.Backup(CollectionBackup{
+//		Collection:     "collection-test",
+//		Name:           backupFilePath,
+//		Location:       "/tmp",
+//		Async:          false,
+//	})
+//
+//	if err != nil {
+//		t.Errorf("failed to backup collection %v", err)
+//	}
+//
+//	if response.Header.Status != 0 {
+//		t.Errorf("failed to backup collection %v", response)
+//	}
+//}
 
-	collection := NewCollection(config)
 
-	response, err := collection.Backup(CollectionBackup{
-		Collection:     "client-solr",
-		Name:           "bkp_3",
-		Location:       "/tmp",
-		Async:          false,
-	})
-	if err != nil {
-		t.Errorf("failed to backup collection %v", err)
-	}
-
-	if response.Header.Status != 0 {
-		t.Errorf("failed to backup collection %v", err)
-	}
-}
-
-func TestCollectionRestore(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
-
-	collection := NewCollection(config)
-
-	response, err := collection.Restore(CollectionRestore{
-		Collection:           "client-solr-restore",
-		Name:                 "bkp_3",
-		Location:             "/tmp",
-		Async:                false,
-		ReplicationFactor:    2,
-	})
-	if err != nil {
-		t.Errorf("failed to restore collection %v", err)
-	}
-
-	if response.Header.Status != 0 {
-		t.Errorf("failed to restore collection %v", err)
-	}
-}
+//func TestCollectionRestore(t *testing.T) {
+//	config := NewConfig().
+//		SetUrl("http://127.0.0.1:8981")
+//
+//	backupFilePath := fmt.Sprintf("bkp_%x", md5.Sum([]byte(time.Now().String())))[0:8]
+//
+//	client := NewClient(config)
+//
+//	response, err := client.Collection.Backup(CollectionBackup{
+//		Collection:     "collection-test",
+//		Name:           backupFilePath,
+//		Location:       "/tmp/",
+//		Async:          false,
+//	})
+//	if err != nil {
+//		t.Errorf("failed to backup collection %v", err)
+//	}
+//
+//	if response.Header.Status != 0 {
+//		t.Errorf("failed to backup collection %v", response)
+//	}
+//
+//	response, err = client.Collection.Restore(CollectionRestore{
+//		Collection:           backupFilePath,
+//		Name:                 backupFilePath,
+//		Location:       	  "/tmp/",
+//		Async:                false,
+//		ReplicationFactor:    1,
+//	})
+//	if err != nil {
+//		t.Errorf("failed to restore collection %v", err)
+//	}
+//
+//	if response.Header.Status != 0 {
+//		t.Errorf("failed to restore collection %v", response)
+//	}
+//}
 
 func TestCollectionDelete(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Delete(CollectionDelete{
-		Name:           "client-solr",
+	response, err := client.Collection.Delete(CollectionDelete{
+		Name:           "collection-test",
 		Async:          false,
 	})
 	if err != nil {
@@ -231,13 +240,12 @@ func TestCollectionDelete(t *testing.T) {
 
 func TestCollectionDeleteMigrate(t *testing.T) {
 	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981").
-		SetPrefix("/solr")
+		SetUrl("http://127.0.0.1:8981")
 
-	collection := NewCollection(config)
+	client := NewClient(config)
 
-	response, err := collection.Delete(CollectionDelete{
-		Name:           "client-solr-migrate",
+	response, err := client.Collection.Delete(CollectionDelete{
+		Name:           "collection-test-migrate",
 		Async:          false,
 	})
 	if err != nil {

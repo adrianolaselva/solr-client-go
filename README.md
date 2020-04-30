@@ -7,7 +7,7 @@ Solr client for golang
 
 ## Install
 
-go get github.com/adrianolaselva/solr-client-go
+go get github.com/adrianolaselva/solr-client-go/solr
 
 ## License
 MIT

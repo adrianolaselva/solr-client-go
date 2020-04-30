@@ -17,11 +17,11 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{http: http.Client{
-		Timeout:       10 * time.Second,
+		Timeout:       20 * time.Second,
 	}, url: &url.URL{
 		Scheme:     "http",
 		Host:       "127.0.0.1:8981",
-	}, prefix: "/solr"}
+	}}
 }
 
 func (c *Config) SetUrl(host string) *Config {
@@ -46,7 +46,7 @@ func (c *Config) SetTimeout(timeout int) *Config {
 	return c
 }
 
-func (c *Config) getUrl(endpoint string, params interface{}) (string, error) {
+func (c *Config) getUrlWithQueryStrings(endpoint string, params interface{}) (string, error) {
 	if c.url != nil {
 		endpoint, err := c.url.Parse(fmt.Sprintf("%s%s", c.prefix, endpoint))
 		if err != nil {
@@ -59,6 +59,19 @@ func (c *Config) getUrl(endpoint string, params interface{}) (string, error) {
 		}
 
 		return fmt.Sprintf("%s?%s", endpoint.String(), params.Encode()), nil
+	}
+
+	return "", errors.Errorf("failed to build request url")
+}
+
+func (c *Config) getUrl(endpoint string) (string, error) {
+	if c.url != nil {
+		endpoint, err := c.url.Parse(fmt.Sprintf("%s%s", c.prefix, endpoint))
+		if err != nil {
+			return "", err
+		}
+
+		return endpoint.String(), nil
 	}
 
 	return "", errors.Errorf("failed to build request url")

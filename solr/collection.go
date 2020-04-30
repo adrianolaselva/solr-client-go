@@ -4,7 +4,6 @@ package solr
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 )
 
@@ -184,7 +183,7 @@ type CollectionCreate struct {
 	// autoscaling of clusters, it is available even when you have not implemented any
 	// other part of autoscaling (such as a policy). See the section SolrCloud Autoscaling
 	// Automatically Adding Replicas for more details about this option and how it can be used.
-	AutoAddReplicas 		string 		`url:"autoAddReplicas,omitempty"`
+	AutoAddReplicas 		bool 		`url:"autoAddReplicas,omitempty"`
 
 	// Replica placement rules. See the section Rule-based Replica Placement for details.
 	Rule 					string 		`url:"rule,omitempty"`
@@ -554,7 +553,7 @@ func (c *Collection) Create(collection CollectionCreate) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = CreateAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
@@ -566,7 +565,7 @@ func (c *Collection) Create(collection CollectionCreate) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -576,16 +575,16 @@ func (c *Collection) Create(collection CollectionCreate) (*Response, error) {
 	return &response, nil
 }
 
-// RELOAD: Reload a Collection
+// Reload: Reload a Collection
 func (c *Collection) Reload(collection CollectionReload) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ReloadAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -593,7 +592,7 @@ func (c *Collection) Reload(collection CollectionReload) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -603,16 +602,16 @@ func (c *Collection) Reload(collection CollectionReload) (*Response, error) {
 	return &response, nil
 }
 
-// MODIFYCOLLECTION: Modify Attributes of a Collection
+// Modify: Modify Attributes of a Collection
 func (c *Collection) Modify(collection CollectionModifyCollection) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ModifyCollectionAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -620,7 +619,7 @@ func (c *Collection) Modify(collection CollectionModifyCollection) (*Response, e
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -630,16 +629,16 @@ func (c *Collection) Modify(collection CollectionModifyCollection) (*Response, e
 	return &response, nil
 }
 
-// LIST: List Collections
+// List: List Collections
 func (c *Collection) List() (*Response, error) {
-	url, err := c.config.getUrl("/admin/collections", collectionBase{
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collectionBase{
 		Action: ListAction,
 		WT:     JSON,
 	})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -647,7 +646,7 @@ func (c *Collection) List() (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -657,16 +656,16 @@ func (c *Collection) List() (*Response, error) {
 	return &response, nil
 }
 
-// RENAME: Rename a Collection
+// Rename: Rename a Collection
 func (c *Collection) Rename(collection CollectionRename) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RenameAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -674,7 +673,7 @@ func (c *Collection) Rename(collection CollectionRename) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -684,16 +683,16 @@ func (c *Collection) Rename(collection CollectionRename) (*Response, error) {
 	return &response, nil
 }
 
-// DELETE: Delete a Collection
+// Delete: Delete a Collection
 func (c *Collection) Delete(collection CollectionDelete) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = DeleteAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -701,7 +700,7 @@ func (c *Collection) Delete(collection CollectionDelete) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -711,17 +710,17 @@ func (c *Collection) Delete(collection CollectionDelete) (*Response, error) {
 	return &response, nil
 }
 
-// COLLECTIONPROP: Collection Properties
+// CollectionProp: Collection Properties
 // Add, edit or delete a collection property.
 func (c *Collection) CollectionProp(collection CollectionProp) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = CollectionPropAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -729,7 +728,7 @@ func (c *Collection) CollectionProp(collection CollectionProp) (*Response, error
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -739,16 +738,16 @@ func (c *Collection) CollectionProp(collection CollectionProp) (*Response, error
 	return &response, nil
 }
 
-// MIGRATE: Migrate Documents to Another Collection
+// Migrate: Migrate Documents to Another Collection
 func (c *Collection) Migrate(collection CollectionMigrate) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = MigrateAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -756,7 +755,7 @@ func (c *Collection) Migrate(collection CollectionMigrate) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -766,16 +765,16 @@ func (c *Collection) Migrate(collection CollectionMigrate) (*Response, error) {
 	return &response, nil
 }
 
-// REINDEXCOLLECTION: Re-Index a Collection
+// ReindexCollection: Re-Index a Collection
 func (c *Collection) ReindexCollection(collection CollectionReindex) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ReindexCollectionAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -783,7 +782,7 @@ func (c *Collection) ReindexCollection(collection CollectionReindex) (*Response,
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -793,18 +792,18 @@ func (c *Collection) ReindexCollection(collection CollectionReindex) (*Response,
 	return &response, nil
 }
 
-// COLSTATUS: Detailed Status of a Collection’s Indexes
+// ColStatus: Detailed Status of a Collection’s Indexes
 // The COLSTATUS command provides a detailed description of the collection status, including low-level
 // index information about segments and field data.
 func (c *Collection) ColStatus(collection CollectionColStatus) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ColStatusAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -812,7 +811,7 @@ func (c *Collection) ColStatus(collection CollectionColStatus) (*Response, error
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -822,17 +821,17 @@ func (c *Collection) ColStatus(collection CollectionColStatus) (*Response, error
 	return &response, nil
 }
 
-// BACKUP: Backup Collection
+// Backup: Backup Collection
 // Backs up Solr collections and associated configurations to a shared filesystem - for example a Network File System.
 func (c *Collection) Backup(collection CollectionBackup) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = BackupAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -840,7 +839,7 @@ func (c *Collection) Backup(collection CollectionBackup) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -850,17 +849,17 @@ func (c *Collection) Backup(collection CollectionBackup) (*Response, error) {
 	return &response, nil
 }
 
-// RESTORE: Restore Collection
+// Restore: Restore Collection
 // Restores Solr indexes and associated configurations.
 func (c *Collection) Restore(collection CollectionRestore) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RestoreAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -868,7 +867,7 @@ func (c *Collection) Restore(collection CollectionRestore) (*Response, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -878,17 +877,17 @@ func (c *Collection) Restore(collection CollectionRestore) (*Response, error) {
 	return &response, nil
 }
 
-// REBALANCELEADERS: Rebalance Leaders
+// RebalanceLeaders: Rebalance Leaders
 // Reassigns leaders in a collection according to the preferredLeader property across active nodes.
 func (c *Collection) RebalanceLeaders(collection CollectionRebalanceLeaders) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RebalanceLeadersAction
 
-	url, err := c.config.getUrl("/admin/collections", collection)
+	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(url)
+
 	resp, err := c.config.http.Get(url)
 	if err != nil {
 		return nil, err
@@ -896,7 +895,7 @@ func (c *Collection) RebalanceLeaders(collection CollectionRebalanceLeaders) (*R
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
