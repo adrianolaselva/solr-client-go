@@ -24,7 +24,7 @@ Create a new Solr customer to consume the endpoints.
 
 ## Examples
 
-Instantiate client:
+Instantiate solr client:
 
 ```go
 client := solr.NewClient()
@@ -72,9 +72,7 @@ Delete by Query:
 
 ```go
 d := Delete{
-    d := Delete{
-        Query: "context.ip: 127.0.0.1",
-    }
+    Query: "context.ip: 127.0.0.1",
 }
 
 response, err = client.Document.Delete(context.Background(), "identify-events", d, &Parameters{
