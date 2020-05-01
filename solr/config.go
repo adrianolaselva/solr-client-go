@@ -3,10 +3,10 @@ package solr
 import (
 	"fmt"
 	"github.com/google/go-querystring/query"
+	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"time"
-	"github.com/pkg/errors"
 )
 
 type Config struct {

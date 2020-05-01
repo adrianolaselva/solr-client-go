@@ -3,8 +3,8 @@
 package solr
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"context"
+	"net/http"
 )
 
 type WT string
@@ -540,98 +540,68 @@ type CollectionRebalanceLeaders struct {
 	MaxWaitSeconds 			string 		`url:"maxWaitSeconds,omitempty"`
 }
 
-type Collection struct {
-	config *Config
+type CollectionAPI struct {
+	client *Client
 }
 
-func NewCollection(config *Config) Collection {
-	return Collection{config: config}
-}
 
 // CREATE: Create a Collection
-func (c *Collection) Create(collection CollectionCreate) (*Response, error) {
+func (c *CollectionAPI) Create(ctx context.Context, collection CollectionCreate) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = CreateAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Reload: Reload a Collection
-func (c *Collection) Reload(collection CollectionReload) (*Response, error) {
+func (c *CollectionAPI) Reload(ctx context.Context, collection CollectionReload) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ReloadAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Modify: Modify Attributes of a Collection
-func (c *Collection) Modify(collection CollectionModifyCollection) (*Response, error) {
+func (c *CollectionAPI) Modify(ctx context.Context, collection CollectionModifyCollection) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ModifyCollectionAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // List: List Collections
-func (c *Collection) List() (*Response, error) {
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collectionBase{
+func (c *CollectionAPI) List(ctx context.Context) (*Response, error) {
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collectionBase{
 		Action: ListAction,
 		WT:     JSON,
 	})
@@ -639,268 +609,178 @@ func (c *Collection) List() (*Response, error) {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Rename: Rename a Collection
-func (c *Collection) Rename(collection CollectionRename) (*Response, error) {
+func (c *CollectionAPI) Rename(ctx context.Context, collection CollectionRename) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RenameAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Delete: Delete a Collection
-func (c *Collection) Delete(collection CollectionDelete) (*Response, error) {
+func (c *CollectionAPI) Delete(ctx context.Context, collection CollectionDelete) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = DeleteAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // CollectionProp: Collection Properties
 // Add, edit or delete a collection property.
-func (c *Collection) CollectionProp(collection CollectionProp) (*Response, error) {
+func (c *CollectionAPI) CollectionProp(ctx context.Context, collection CollectionProp) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = CollectionPropAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Migrate: Migrate Documents to Another Collection
-func (c *Collection) Migrate(collection CollectionMigrate) (*Response, error) {
+func (c *CollectionAPI) Migrate(ctx context.Context, collection CollectionMigrate) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = MigrateAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // ReindexCollection: Re-Index a Collection
-func (c *Collection) ReindexCollection(collection CollectionReindex) (*Response, error) {
+func (c *CollectionAPI) ReindexCollection(ctx context.Context, collection CollectionReindex) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ReindexCollectionAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // ColStatus: Detailed Status of a Collection’s Indexes
 // The COLSTATUS command provides a detailed description of the collection status, including low-level
 // index information about segments and field data.
-func (c *Collection) ColStatus(collection CollectionColStatus) (*Response, error) {
+func (c *CollectionAPI) ColStatus(ctx context.Context, collection CollectionColStatus) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = ColStatusAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Backup: Backup Collection
 // Backs up Solr collections and associated configurations to a shared filesystem - for example a Network File System.
-func (c *Collection) Backup(collection CollectionBackup) (*Response, error) {
+func (c *CollectionAPI) Backup(ctx context.Context, collection CollectionBackup) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = BackupAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // Restore: Restore Collection
 // Restores Solr indexes and associated configurations.
-func (c *Collection) Restore(collection CollectionRestore) (*Response, error) {
+func (c *CollectionAPI) Restore(ctx context.Context, collection CollectionRestore) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RestoreAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }
 
 // RebalanceLeaders: Rebalance Leaders
 // Reassigns leaders in a collection according to the preferredLeader property across active nodes.
-func (c *Collection) RebalanceLeaders(collection CollectionRebalanceLeaders) (*Response, error) {
+func (c *CollectionAPI) RebalanceLeaders(ctx context.Context, collection CollectionRebalanceLeaders) (*Response, error) {
 	collection.WT = JSON
 	collection.Action = RebalanceLeadersAction
 
-	url, err := c.config.getUrlWithQueryStrings("/solr/admin/collections", collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.config.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	var response Response
-	err = json.Unmarshal(body, &response)
+	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, err
 }

@@ -1,14 +1,14 @@
 package solr
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestCollectionCreate(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
-	
-	client := NewClient(config)
+	client := NewClient()
 
-	response, err := client.Collection.Create(CollectionCreate{
+	response, err := client.Collection.Create(context.Background(), CollectionCreate{
 		Name:                 "collection-test",
 		RouterName:           "compositeId",
 		NumShards:            1,
@@ -20,18 +20,15 @@ func TestCollectionCreate(t *testing.T) {
 		t.Errorf("failed to create collection %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to create collection %v", err)
 	}
 }
 
 func TestCollectionReload(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Reload(CollectionReload{
+	response, err := client.Collection.Reload(context.Background(), CollectionReload{
 		Name:           "collection-test",
 		Async:          false,
 	})
@@ -39,18 +36,15 @@ func TestCollectionReload(t *testing.T) {
 		t.Errorf("failed to reload collection %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to reload collection %v", err)
 	}
 }
 
 func TestCollectionModify(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Modify(CollectionModifyCollection{
+	response, err := client.Collection.Modify(context.Background(), CollectionModifyCollection{
 		Collection: "collection-test",
 		MaxShardsPerNode:      1,
 	})
@@ -58,34 +52,28 @@ func TestCollectionModify(t *testing.T) {
 		t.Errorf("failed to modify collections %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to modify collections %v", err)
 	}
 }
 
 func TestCollectionList(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.List()
+	response, err := client.Collection.List(context.Background())
 	if err != nil {
 		t.Errorf("failed to list collections %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to list collections %v", err)
 	}
 }
 
 func TestCollectionProp(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.CollectionProp(CollectionProp{
+	response, err := client.Collection.CollectionProp(context.Background(), CollectionProp{
 		Name:           "collection-test",
 		PropertyName:   "timestamp",
 		PropertyValue:  "dateTime",
@@ -94,18 +82,15 @@ func TestCollectionProp(t *testing.T) {
 		t.Errorf("failed to modify property %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to modify property %v", err)
 	}
 }
 
 func TestCollectionRename(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Rename(CollectionRename{
+	response, err := client.Collection.Rename(context.Background(), CollectionRename{
 		Name:           "collection-test",
 		Target:         "collection-test",
 	})
@@ -113,18 +98,15 @@ func TestCollectionRename(t *testing.T) {
 		t.Errorf("failed to rename collection %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to rename collection %v", err)
 	}
 }
 
 func TestCollectionMigrate(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Create(CollectionCreate{
+	response, err := client.Collection.Create(context.Background(), CollectionCreate{
 		Name:                 "collection-test-migrate",
 		NumShards:            1,
 		ReplicationFactor: 	  1,
@@ -135,11 +117,11 @@ func TestCollectionMigrate(t *testing.T) {
 		t.Errorf("failed to create collection collection-test-migrate %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to create collection collection-test-migrate %v", err)
 	}
 
-	response, err = client.Collection.Migrate(CollectionMigrate{
+	response, err = client.Collection.Migrate(context.Background(), CollectionMigrate{
 		Collection:       "collection-test",
 		TargetCollection: "collection-test-migrate",
 		SplitKey:         "a!",
@@ -150,21 +132,20 @@ func TestCollectionMigrate(t *testing.T) {
 		t.Errorf("failed to migrate collection %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to migrate collection %v", err)
 	}
 }
 
 //func TestCollectionBackup(t *testing.T) {
 //
-//	config := NewConfig().
-//		SetUrl("http://127.0.0.1:8981")
+//	client := NewClient()
 //
 //	backupFilePath := fmt.Sprintf("bkp_%x", md5.Sum([]byte(time.Now().String())))[0:10]
 //
 //	client := NewClient(config)
 //
-//	response, err := client.Collection.Backup(CollectionBackup{
+//	response, err := client.Collection.Backup(context.Background(), CollectionBackup{
 //		Collection:     "collection-test",
 //		Name:           backupFilePath,
 //		Location:       "/tmp",
@@ -175,21 +156,20 @@ func TestCollectionMigrate(t *testing.T) {
 //		t.Errorf("failed to backup collection %v", err)
 //	}
 //
-//	if response.Header.Status != 0 {
+//	if response.ResponseHeader.Status != 0 {
 //		t.Errorf("failed to backup collection %v", response)
 //	}
 //}
 
 
 //func TestCollectionRestore(t *testing.T) {
-//	config := NewConfig().
-//		SetUrl("http://127.0.0.1:8981")
+//	client := NewClient()
 //
 //	backupFilePath := fmt.Sprintf("bkp_%x", md5.Sum([]byte(time.Now().String())))[0:8]
 //
 //	client := NewClient(config)
 //
-//	response, err := client.Collection.Backup(CollectionBackup{
+//	response, err := client.Collection.Backup(context.Background(), CollectionBackup{
 //		Collection:     "collection-test",
 //		Name:           backupFilePath,
 //		Location:       "/tmp/",
@@ -199,11 +179,11 @@ func TestCollectionMigrate(t *testing.T) {
 //		t.Errorf("failed to backup collection %v", err)
 //	}
 //
-//	if response.Header.Status != 0 {
+//	if response.ResponseHeader.Status != 0 {
 //		t.Errorf("failed to backup collection %v", response)
 //	}
 //
-//	response, err = client.Collection.Restore(CollectionRestore{
+//	response, err = client.Collection.Restore(context.Background(), CollectionRestore{
 //		Collection:           backupFilePath,
 //		Name:                 backupFilePath,
 //		Location:       	  "/tmp/",
@@ -214,18 +194,15 @@ func TestCollectionMigrate(t *testing.T) {
 //		t.Errorf("failed to restore collection %v", err)
 //	}
 //
-//	if response.Header.Status != 0 {
+//	if response.ResponseHeader.Status != 0 {
 //		t.Errorf("failed to restore collection %v", response)
 //	}
 //}
 
 func TestCollectionDelete(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Delete(CollectionDelete{
+	response, err := client.Collection.Delete(context.Background(), CollectionDelete{
 		Name:           "collection-test",
 		Async:          false,
 	})
@@ -233,18 +210,15 @@ func TestCollectionDelete(t *testing.T) {
 		t.Errorf("failed to delete collection %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to delete collection %v", err)
 	}
 }
 
 func TestCollectionDeleteMigrate(t *testing.T) {
-	config := NewConfig().
-		SetUrl("http://127.0.0.1:8981")
+	client := NewClient()
 
-	client := NewClient(config)
-
-	response, err := client.Collection.Delete(CollectionDelete{
+	response, err := client.Collection.Delete(context.Background(), CollectionDelete{
 		Name:           "collection-test-migrate",
 		Async:          false,
 	})
@@ -252,7 +226,7 @@ func TestCollectionDeleteMigrate(t *testing.T) {
 		t.Errorf("failed to delete collection migrate %v", err)
 	}
 
-	if response.Header.Status != 0 {
+	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to delete collection migrate %v", err)
 	}
 }

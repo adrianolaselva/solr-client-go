@@ -1,9 +1,12 @@
 package solr
 
+import "net/http"
+
+
 type Response struct {
-	Header 				ResponseHeader      	`json:"responseHeader,omitempty"`
+	HttpResponse 		*http.Response
+	ResponseHeader 		ResponseHeader      	`json:"responseHeader,omitempty"`
 	Collections 		[]*string      			`json:"collections,omitempty"`
-	Result 				Result          		`json:"response,omitempty"`
 	Response 			Result          		`json:"response,omitempty"`
 	Error  				Error          	 		`json:"error,omitempty"`
 	Exception  			Exception          		`json:"exception,omitempty"`
@@ -45,7 +48,7 @@ type Params struct {
 	Indent 				bool 				`json:"indent,omitempty"`
 	Q      				string				`json:"q,omitempty"`
 	WT     				string				`json:"wt,omitempty"`
-	Json 				bool				`json:"json,omitempty"`
+	Json 				string				`json:"json,omitempty"`
 }
 
 type Exception struct {
