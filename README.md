@@ -3,7 +3,7 @@
 [![GoDoc](https://godoc.org/github.com/adrianolaselva/solr-client-go?status.svg)](https://godoc.org/github.com/adrianolaselva/solr-client-go)
 ![license](http://img.shields.io/badge/license-Apache%20v2-blue.svg)
 
-solr-client-go
+Apache Solr client Go
 =======
 
 This is a Go client library to access Apache Solr APIs to enable the use of operations from document manipulation to index management.
