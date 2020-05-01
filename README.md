@@ -82,6 +82,79 @@ response, err = client.Document.Delete(context.Background(), "identify-events", 
 })
 ```
 
+Create new collection:
+
+```go
+response, err := client.Collection.Create(context.Background(), CollectionCreate{
+    Name:                 "collection-test",
+    RouterName:           "compositeId",
+    NumShards:            1,
+    ReplicationFactor: 	  1,
+    CollectionConfigName: "_default",
+    Async:                false,
+})
+```
+
+Reload Collection:
+
+```go
+response, err := client.Collection.Reload(context.Background(), CollectionReload{
+    Name:           "collection-test",
+    Async:          false,
+})
+```
+
+Modify Collection:
+
+```go
+response, err := client.Collection.Modify(context.Background(), CollectionModifyCollection{
+    Collection: "collection-test",
+    MaxShardsPerNode:      1,
+})
+```
+
+
+List Collections:
+
+```go
+response, err := client.Collection.List(context.Background())
+```
+
+Migrate collection
+
+```go
+response, err = client.Collection.Migrate(context.Background(), CollectionMigrate{
+    Collection:       "collection-test",
+    TargetCollection: "collection-test-migrate",
+    SplitKey:         "a!",
+    ForwardTimeout:   100000,
+    Async:            false,
+})
+```
+
+Collection backup:
+
+```go
+response, err := client.Collection.Backup(context.Background(), CollectionBackup{
+	Collection:     "collection-test",
+	Name:           backupFilePath,
+	Location:       "/tmp/",
+	Async:          false,
+})
+```
+
+Collection restore:
+
+```go
+response, err = client.Collection.Restore(context.Background(), CollectionRestore{
+	Collection:           backupFilePath,
+	Name:                 backupFilePath,
+	Location:       	  "/tmp/",
+	Async:                false,
+	ReplicationFactor:    1,
+})
+```
+
 ## Versioning
 
 Each version of the client is tagged and the version is updated accordingly.
