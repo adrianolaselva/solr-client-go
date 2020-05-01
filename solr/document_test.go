@@ -90,9 +90,6 @@ func TestDocumentSelectAll(t *testing.T) {
 		t.Errorf("failed to select all documents %v", err)
 	}
 
-	if len(response.Response.Docs)==0 {
-		t.Errorf("failed to select all documents %v", err)
-	}
 }
 
 func TestDocumentDelete(t *testing.T) {
