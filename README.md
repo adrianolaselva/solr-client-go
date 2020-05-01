@@ -13,7 +13,7 @@ go get github.com/adrianolaselva/solr-client-go/solr
 
 ## Usage
 
-```gotemplate
+```go
 import "github.com/adrianolaselva/solr-client-go/solr"
 ```
 
@@ -23,13 +23,13 @@ Create a new Solr customer to consume the endpoints.
 
 Instantiate client:
 
-```gotemplate
+```go
 client := solr.NewClient()
 ```
 
 Find Documents:
 
-```gotemplate
+```go
 response, err := client.Document.Select(context.Background(), "identify-events", "*:*")
 if err != nil {
     log.Info(err)
@@ -38,7 +38,7 @@ if err != nil {
 
 Create Document(s):
 
-```gotemplate
+```go
 var docs []solr.Document
 docs = append(docs, map[string]interface{}{
     "uuid": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
@@ -55,7 +55,7 @@ response, err := client.Document.Update(context.Background(), "identify-events",
 
 Delete by ID:
 
-```gotemplate
+```go
 d := Delete{
     Id: id,
 }
@@ -67,7 +67,7 @@ response, err = client.Document.Delete(context.Background(), "identify-events", 
 
 Delete by Query:
 
-```gotemplate
+```go
 d := Delete{
     d := Delete{
         Query: "context.ip: 127.0.0.1",
