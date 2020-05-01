@@ -10,7 +10,9 @@ This is a Go client library to access Apache Solr APIs to enable the use of oper
 
 ## Install
 
+```sh
 go get github.com/adrianolaselva/solr-client-go/solr
+```
 
 ## Usage
 
