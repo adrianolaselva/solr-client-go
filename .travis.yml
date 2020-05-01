@@ -1,0 +1,28 @@
+# use the latest ubuntu environment (18.04) available on travis
+dist: bionic
+
+language: go
+
+go:
+  - 1.14.x
+
+git:
+  depth: 1
+
+install: true
+
+notifications:
+  email: false
+
+before_script:
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
+
+before_install:
+  - mkdir ../solr && pushd ../solr
+  - wget http://archive.apache.org/dist/lucene/solr/5.3.1/solr-5.3.1.tgz
+  - tar xzf solr-5.3.1.tgz && ./solr-5.3.1/bin/solr -c -e schemaless
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
+
+script:
+  - golangci-lint run       # run a bunch of code checkers/linters in parallel
+  - go test -v -race ./...  # Run all the tests with the race detector enabled
