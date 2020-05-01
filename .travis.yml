@@ -13,8 +13,8 @@ install: true
 notifications:
   email: false
 
-before_script:
-  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
+#before_script:
+#  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
 
 before_install:
   - mkdir ../solr && pushd ../solr
@@ -23,5 +23,4 @@ before_install:
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
 
 script:
-  - golangci-lint run       # run a bunch of code checkers/linters in parallel
-  - go test -v -race ./...  # Run all the tests with the race detector enabled
+  - go test -v -race ./...
