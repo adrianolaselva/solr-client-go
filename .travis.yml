@@ -14,7 +14,7 @@ before_install:
   - mkdir solr-8.5.1 && pushd solr-8.5.1
   - wget http://archive.apache.org/dist/lucene/solr/8.5.1/solr-8.5.1.tgz
   - tar xzf solr-8.5.1.tgz && ./solr-8.5.1/bin/solr -c -e schemaless
+  - cd ..
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.25.1
 script:
-  - cd ..
   - go test -v -race ./...

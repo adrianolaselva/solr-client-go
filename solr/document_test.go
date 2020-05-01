@@ -62,7 +62,26 @@ func TestDocumentCreateBulkWithCommit(t *testing.T) {
 func TestDocumentSelectAll(t *testing.T) {
 	client := NewClient()
 
-	response, err := client.Document.Select(context.Background(), "identify-events", "*:*")
+	var docs []Document
+	for i:=0;i<10;i++ {
+		docs = append(docs, map[string]interface{}{
+			"uuid": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
+			"iteration": i,
+			"context": map[string]interface{}{
+				"ip": fmt.Sprintf("127.0.0.%v", i),
+			},
+			"timestamp": "2020-04-27 16:43:57-0300",
+		})
+	}
+
+	response, err := client.Document.Update(context.Background(), "identify-events", docs, &Parameters{
+		Commit:       true,
+	})
+	if err != nil {
+		t.Errorf("failed to add documents and commit for execute query %v", err)
+	}
+
+	response, err = client.Document.Select(context.Background(), "identify-events", "*:*")
 	if err != nil {
 		t.Errorf("failed to select all documents %v", err)
 	}
