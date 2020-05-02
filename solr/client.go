@@ -15,11 +15,13 @@ const (
 )
 
 type Client struct {
-	client 			*http.Client
-	baseURL 		*url.URL
-	Document 		DocumentAPI
-	Collection 		CollectionAPI
-	onRequestCompleted RequestCompletionCallback
+	client 				*http.Client
+	baseURL 			*url.URL
+	Document 			DocumentAPI
+	Collection 			CollectionAPI
+	onRequestCompleted 	RequestCompletionCallback
+	username			string
+	password			string
 }
 
 type RequestCompletionCallback func(*http.Request, *http.Response)
@@ -34,27 +36,34 @@ func NewClient() Client {
 		baseURL:            baseURL,
 	}
 
-	initialize(&client)
+	client.Initialize()
 
 	return client
 }
 
-func initialize(client *Client) {
-	document := DocumentAPI{client: client}
-	client.Document = document
-	collection := CollectionAPI{client: client}
-	client.Collection = collection
+func (c *Client) Initialize() {
+	document := DocumentAPI{client: c}
+	c.Document = document
+	collection := CollectionAPI{client: c}
+	c.Collection = collection
 }
 
 func (c *Client) SetHttpClient(httpClient *http.Client) *Client {
 	c.client = httpClient
-	initialize(c)
+	c.Initialize()
+	return c
+}
+
+func (c *Client) SetBasicAuth(username string, password string) *Client {
+	c.username = username
+	c.password = password
+	c.Initialize()
 	return c
 }
 
 func (c *Client) SetBaseURL(baseURL string) *Client{
 	c.baseURL, _ = url.Parse(baseURL)
-	initialize(c)
+	c.Initialize()
 	return c
 }
 
@@ -82,6 +91,11 @@ func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body int
 
 	req.Header.Add("Content-Type", DefaultContentType)
 	req.Header.Add("Accept", DefaultContentType)
+
+	if c.username != "" && c.password != "" {
+		req.SetBasicAuth(c.username, c.password)
+	}
+
 	return req, nil
 }
 

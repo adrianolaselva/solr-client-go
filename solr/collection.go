@@ -554,7 +554,7 @@ func (c *CollectionAPI) Create(ctx context.Context, collection CollectionCreate)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	response, err := c.client.Do(ctx, req)
 	if err != nil {
 		return nil, err
