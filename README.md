@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/adrianolaselva/solr-client-go.svg?branch=master)](https://travis-ci.org/adrianolaselva/solr-client-go)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/adrianolaselva/solr-client-go/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/adrianolaselva/solr-client-go/?branch=master)
-[![GoDoc](https://godoc.org/github.com/adrianolaselva/solr-client-go?status.svg)](https://godoc.org/github.com/adrianolaselva/solr-client-go)
+[![GoDoc](https://godoc.org/github.com/adrianolaselva/solr-client-go?status.svg)](https://pkg.go.dev/github.com/adrianolaselva/solr-client-go)
 ![license](http://img.shields.io/badge/license-Apache%20v2-blue.svg)
 
 Apache Solr client Go
