@@ -550,7 +550,7 @@ func (c *CollectionAPI) Create(ctx context.Context, collection CollectionCreate)
 	collection.WT = JSON
 	collection.Action = CreateAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -568,7 +568,7 @@ func (c *CollectionAPI) Reload(ctx context.Context, collection CollectionReload)
 	collection.WT = JSON
 	collection.Action = ReloadAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -586,7 +586,7 @@ func (c *CollectionAPI) Modify(ctx context.Context, collection CollectionModifyC
 	collection.WT = JSON
 	collection.Action = ModifyCollectionAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -604,7 +604,7 @@ func (c *CollectionAPI) List(ctx context.Context) (*Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collectionBase{
 		Action: ListAction,
 		WT:     JSON,
-	})
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -622,7 +622,7 @@ func (c *CollectionAPI) Rename(ctx context.Context, collection CollectionRename)
 	collection.WT = JSON
 	collection.Action = RenameAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -640,7 +640,7 @@ func (c *CollectionAPI) Delete(ctx context.Context, collection CollectionDelete)
 	collection.WT = JSON
 	collection.Action = DeleteAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -659,7 +659,7 @@ func (c *CollectionAPI) CollectionProp(ctx context.Context, collection Collectio
 	collection.WT = JSON
 	collection.Action = CollectionPropAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -677,7 +677,7 @@ func (c *CollectionAPI) Migrate(ctx context.Context, collection CollectionMigrat
 	collection.WT = JSON
 	collection.Action = MigrateAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -695,7 +695,7 @@ func (c *CollectionAPI) ReindexCollection(ctx context.Context, collection Collec
 	collection.WT = JSON
 	collection.Action = ReindexCollectionAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -715,7 +715,7 @@ func (c *CollectionAPI) ColStatus(ctx context.Context, collection CollectionColS
 	collection.WT = JSON
 	collection.Action = ColStatusAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -734,7 +734,7 @@ func (c *CollectionAPI) Backup(ctx context.Context, collection CollectionBackup)
 	collection.WT = JSON
 	collection.Action = BackupAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -753,7 +753,7 @@ func (c *CollectionAPI) Restore(ctx context.Context, collection CollectionRestor
 	collection.WT = JSON
 	collection.Action = RestoreAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -772,7 +772,7 @@ func (c *CollectionAPI) RebalanceLeaders(ctx context.Context, collection Collect
 	collection.WT = JSON
 	collection.Action = RebalanceLeadersAction
 
-	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection)
+	req, err := c.client.NewRequest(ctx, http.MethodGet, "/solr/admin/collections", nil, collection, nil)
 	if err != nil {
 		return nil, err
 	}
