@@ -104,6 +104,7 @@ func (d *DocumentAPI) Delete(ctx context.Context, collection string, delete Dele
 	return response, err
 }
 
+// EXTRACT: Uploading Data with Solr Cell using Apache Tika
 func (d *DocumentAPI) Extract(ctx context.Context, collection string, filename string, params *Parameters) (*Response, error) {
 	file, err := os.Open(filename)
 	if err != nil {

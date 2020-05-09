@@ -30,6 +30,7 @@ type CreateConfig struct {
 	Create			Config 		`json:"create,omitempty"`
 }
 
+// LIST: List a Configset
 func (c *ConfigAPI) List(ctx context.Context) (*Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodGet, "/api/cluster/configs", nil, &ConfigParameter{
 		OmitHeader: true,
@@ -46,6 +47,7 @@ func (c *ConfigAPI) List(ctx context.Context) (*Response, error) {
 	return response, err
 }
 
+// UPLOAD: Upload a Configset
 func (c *ConfigAPI) Upload(ctx context.Context, filename string, name string) (*Response, error) {
 	response, err := c.client.NewUpload(ctx, "/solr/admin/configs", filename, &ConfigParameter{
 		Action: ActionUpload,
@@ -58,6 +60,7 @@ func (c *ConfigAPI) Upload(ctx context.Context, filename string, name string) (*
 	return response, err
 }
 
+// CREATE: Create a Configset
 func (c *ConfigAPI) Create(ctx context.Context, config CreateConfig) (*Response, error) {
 	req, err := c.client.NewRequest(ctx, http.MethodPost, "/api/cluster/configs", config, &ConfigParameter{
 		OmitHeader: true,
@@ -74,6 +77,7 @@ func (c *ConfigAPI) Create(ctx context.Context, config CreateConfig) (*Response,
 	return response, err
 }
 
+// DELETE: Create a Configset
 func (c *ConfigAPI) Delete(ctx context.Context, name string) (*Response, error) {
 	path := fmt.Sprintf("/api/cluster/configs/%s", name)
 

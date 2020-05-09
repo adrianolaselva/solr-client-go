@@ -168,6 +168,21 @@ func TestDocumentDeleteByQuery(t *testing.T) {
 	}
 }
 
+func TestDocumentExtract(t *testing.T) {
+	client := NewClient()
+
+	_, err := client.Document.Extract(context.Background(), "tests", "../example/lorem-ipsum.pdf", &Parameters{
+		Commit:       true,
+	})
+	if err != nil {
+		t.Errorf("failed to extract pdf document %v", err)
+	}
+
+	//if response.ResponseHeader.Status != 0 {
+	//	t.Errorf("failed to extract pdf document %v", err)
+	//}
+}
+
 func TestDocumentDeleteAll(t *testing.T) {
 	client := NewClient()
 
