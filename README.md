@@ -159,6 +159,8 @@ Create collection configuration:
 response, err := client.Config.Upload(context.Background(), "../example/configs/identify-events.zip", "identify-events")
 ```
 
+>Obs: example collection settings in the `./example/configs/` directory.
+
 Create a new configuration using another as a base:
 
 ```go
