@@ -11,6 +11,22 @@ import (
 func TestDocumentCreate(t *testing.T) {
 	client := NewClient()
 
+	response, err := client.Collection.Create(context.Background(), CollectionCreate{
+		Name:                 "tests",
+		RouterName:           "compositeId",
+		NumShards:            1,
+		ReplicationFactor: 	  1,
+		CollectionConfigName: "_default",
+		Async:                false,
+	})
+	if err != nil {
+		t.Errorf("failed to create collection %v", err)
+	}
+
+	if response.ResponseHeader.Status != 0 {
+		t.Errorf("failed to create collection %v", err)
+	}
+
 	var docs []Document
 	docs = append(docs, map[string]interface{}{
 		"uuid": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
@@ -20,7 +36,7 @@ func TestDocumentCreate(t *testing.T) {
 		"timestamp": "2020-04-27 16:43:57-0300",
 	})
 
-	response, err := client.Document.Update(context.Background(), "identify-events", docs, &Parameters{
+	response, err = client.Document.Update(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -47,7 +63,7 @@ func TestDocumentCreateBulkWithCommit(t *testing.T) {
 		})
 	}
 
-	response, err := client.Document.Update(context.Background(), "identify-events", docs, &Parameters{
+	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -74,14 +90,14 @@ func TestDocumentSelectAll(t *testing.T) {
 		})
 	}
 
-	response, err := client.Document.Update(context.Background(), "identify-events", docs, &Parameters{
+	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
 		t.Errorf("failed to add documents and commit for execute query %v", err)
 	}
 
-	response, err = client.Document.Select(context.Background(), "identify-events", "*:*")
+	response, err = client.Document.Select(context.Background(), "tests", "*:*")
 	if err != nil {
 		t.Errorf("failed to select all documents %v", err)
 	}
@@ -106,7 +122,7 @@ func TestDocumentDelete(t *testing.T) {
 		"timestamp": "2020-04-27 16:43:57-0300",
 	})
 
-	response, err := client.Document.Update(context.Background(), "identify-events", docs, &Parameters{
+	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -121,7 +137,7 @@ func TestDocumentDelete(t *testing.T) {
 		Id: id,
 	}
 
-	response, err = client.Document.Delete(context.Background(), "identify-events", d, &Parameters{
+	response, err = client.Document.Delete(context.Background(), "tests", d, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -140,7 +156,7 @@ func TestDocumentDeleteByQuery(t *testing.T) {
 		Query: "context.ip: 127.0.0.1",
 	}
 
-	response, err := client.Document.Delete(context.Background(), "identify-events", d, &Parameters{
+	response, err := client.Document.Delete(context.Background(), "tests", d, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -159,7 +175,7 @@ func TestDocumentDeleteAll(t *testing.T) {
 		Query: "*:*",
 	}
 
-	response, err := client.Document.Delete(context.Background(), "identify-events", d, &Parameters{
+	response, err := client.Document.Delete(context.Background(), "tests", d, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -168,5 +184,17 @@ func TestDocumentDeleteAll(t *testing.T) {
 
 	if response.ResponseHeader.Status != 0 {
 		t.Errorf("failed to create document and commit %v", err)
+	}
+
+	response, err = client.Collection.Delete(context.Background(), CollectionDelete{
+		Name:           "tests",
+		Async:          false,
+	})
+	if err != nil {
+		t.Errorf("failed to delete collection %v", err)
+	}
+
+	if response.ResponseHeader.Status != 0 {
+		t.Errorf("failed to delete collection %v", err)
 	}
 }

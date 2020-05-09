@@ -153,6 +153,29 @@ response, err = client.Collection.Restore(context.Background(), CollectionRestor
 })
 ```
 
+Create collection configuration:
+
+```go
+response, err := client.Config.Upload(context.Background(), "../example/configs/identify-events.zip", "identify-events")
+```
+
+Create a new configuration using another as a base:
+
+```go
+response, err := client.Config.Create(context.Background(), CreateConfig{
+    Create: Config{
+        Name:                   "identify-events.CREATE",
+        BaseConfigSet:          "identify-events",
+    },
+})
+```
+
+Remove collection configuration:
+
+```go
+response, err := client.Config.Delete(context.Background(), "identify-events")
+```
+
 ## Versioning
 
 Each version of the client is tagged and the version is updated accordingly.
