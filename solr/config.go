@@ -11,7 +11,7 @@ const (
 )
 
 type Config struct {
-	Name 					string 		`json:"name,omitempty" url:"name,omitempty"`
+	Name 					string 		`json:"name,omitempty"url:"name,omitempty"`
 	BaseConfigSet 			string		`json:"baseConfigSet,omitempty"`
 	ConfigSetPropImmutable 	bool		`json:"configSetProp.immutable,omitempty"`
 }
