@@ -5,8 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/google/go-querystring/query"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 const (
@@ -19,6 +22,7 @@ type Client struct {
 	baseURL 			*url.URL
 	Document 			DocumentAPI
 	Collection 			CollectionAPI
+	Config 				ConfigAPI
 	onRequestCompleted 	RequestCompletionCallback
 	username			string
 	password			string
@@ -46,6 +50,8 @@ func (c *Client) Initialize() {
 	c.Document = document
 	collection := CollectionAPI{client: c}
 	c.Collection = collection
+	config := ConfigAPI{client: c}
+	c.Config = config
 }
 
 func (c *Client) SetHttpClient(httpClient *http.Client) *Client {
@@ -67,7 +73,80 @@ func (c *Client) SetBaseURL(baseURL string) *Client{
 	return c
 }
 
-func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body interface{}, queryStrings interface{}) (*http.Request, error) {
+func (c *Client) NewUpload(ctx context.Context, urlStr string, filepath string, queryStrings interface{}) (*Response, error) {
+	u, err := c.baseURL.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	params, _ := query.Values(queryStrings)
+	u.RawQuery = params.Encode()
+
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	resp, err := http.Post(u.String(), "application/octet-stream", file)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := Response{HttpResponse: resp}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body interface{}, queryStrings interface{}, headers *map[string]string) (*http.Request, error) {
+	u, err := c.baseURL.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := new(bytes.Buffer)
+	if body != nil {
+		err = json.NewEncoder(buf).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	params, _ := query.Values(queryStrings)
+	u.RawQuery = params.Encode()
+
+	req, err := http.NewRequest(method, u.String(), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", DefaultContentType)
+
+	if headers != nil {
+		for key, value := range *headers {
+			req.Header.Set(key, value)
+		}
+	}
+
+	if c.username != "" && c.password != "" {
+		req.SetBasicAuth(c.username, c.password)
+	}
+
+	return req, nil
+}
+
+func (c *Client) NewRequestUpload(ctx context.Context, method, urlStr string, body interface{}, queryStrings interface{}) (*http.Request, error) {
 	u, err := c.baseURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -115,15 +194,47 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (*Response, error) {
 		}
 	}()
 
+	b, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
 	response := Response{HttpResponse: resp}
 
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err = json.Unmarshal(b, &response)
 	if err != nil {
 		return nil, err
 	}
 
 	return &response, nil
 }
+
+//func (c *Client) Do(ctx context.Context, req *http.Request) (*Response, error) {
+//	req = req.WithContext(ctx)
+//	resp, err := c.client.Do(req)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if c.onRequestCompleted != nil {
+//		c.onRequestCompleted(req, resp)
+//	}
+//
+//	defer func() {
+//		if rerr := resp.Body.Close(); err == nil {
+//			err = rerr
+//		}
+//	}()
+//
+//	response := Response{HttpResponse: resp}
+//
+//	err = json.NewDecoder(resp.Body).Decode(&response)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return &response, nil
+//}
 
 func (c *Client) OnRequestCompleted(rc RequestCompletionCallback) {
 	c.onRequestCompleted = rc

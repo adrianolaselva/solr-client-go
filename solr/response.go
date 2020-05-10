@@ -7,6 +7,7 @@ type Response struct {
 	HttpResponse 		*http.Response
 	ResponseHeader 		ResponseHeader      	`json:"responseHeader,omitempty"`
 	Collections 		[]*string      			`json:"collections,omitempty"`
+	ConfigSets 			[]*string      			`json:"configSets,omitempty"`
 	Response 			Result          		`json:"response,omitempty"`
 	Error  				Error          	 		`json:"error,omitempty"`
 	Exception  			Exception          		`json:"exception,omitempty"`

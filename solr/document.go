@@ -1,9 +1,15 @@
 package solr
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 type Parameters struct {
@@ -11,6 +17,7 @@ type Parameters struct {
 	Commit 			bool 						`url:"commit,omitempty"`
 	Query 			string 						`url:"q,omitempty"`
 	Delete 			interface{} 				`url:"delete,omitempty"`
+	LiteralId 		string 						`url:"literal.id,omitempty"`
 }
 
 type Delete struct {
@@ -29,7 +36,7 @@ func (d *DocumentAPI) Select(ctx context.Context, collection string, query strin
 
 	req, err := d.client.NewRequest(ctx, http.MethodGet, path, nil, &Parameters{
 		Query:	query,
-	})
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +53,7 @@ func (d *DocumentAPI) Update(ctx context.Context, collection string, docs []Docu
 
 	path := fmt.Sprintf("/api/collections/%s/update/json", collection)
 
-	req, err := d.client.NewRequest(ctx, http.MethodPost, path, docs, params)
+	req, err := d.client.NewRequest(ctx, http.MethodPost, path, docs, params, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +72,7 @@ func (d *DocumentAPI) Commit(ctx context.Context, collection string) (*Response,
 
 	req, err := d.client.NewRequest(ctx, http.MethodPost, path, nil, Parameters{
 		Commit:       true,
-	})
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +91,7 @@ func (d *DocumentAPI) Delete(ctx context.Context, collection string, delete Dele
 
 	req, err := d.client.NewRequest(ctx, http.MethodPost, path, map[string]interface{}{
 		"delete": delete,
-	}, params)
+	}, params, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,179 +104,44 @@ func (d *DocumentAPI) Delete(ctx context.Context, collection string, delete Dele
 	return response, err
 }
 
-//
-//
-//
-//
-//
-//	payload, err := json.Marshal(documents)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	url, err := d.config.
-//		getUrlWithQueryStrings(
-//			fmt.Sprintf("/api/collections/%s/update/json", collection), params)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Post(url, "application/json", bytes.NewBuffer(payload))
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
-//
-//func (d *DocumentAPI) Commit(collection string) (*Response, error) {
-//
-//	url, err := d.config.
-//		getUrlWithQueryStrings(
-//			fmt.Sprintf("/api/collections/%s/update/json", collection),
-//			DocumentParameters{Commit: true})
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Post(url, "application/json", nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
-//
-//func (d *DocumentAPI) Delete(collection string) (*Response, error) {
-//	url, err := d.config.getUrl(fmt.Sprintf("/api/collections/%s/update/json", collection))
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Get(url)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
+// EXTRACT: Uploading Data with Solr Cell using Apache Tika
+func (d *DocumentAPI) Extract(ctx context.Context, collection string, filename string, params *Parameters) (*Response, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("document", filepath.Base(file.Name()))
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return nil, err
+	}
 
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
 
+	path := fmt.Sprintf("/api/collections/%s/update/extract", collection)
 
+	req, err := d.client.NewRequest(ctx, http.MethodPost, path, body, params, &map[string]string{
+		"Content-Type": "application/octet-stream",
+	})
+	if err != nil {
+		return nil, err
+	}
 
+	response, err := d.client.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-
-//func (d *Document) Update(collection string,
-//	documents []map[string]interface{}, params DocumentParameters) (*Response, error) {
-//
-//	payload, err := json.Marshal(documents)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	url, err := d.config.
-//		getUrlWithQueryStrings(
-//			fmt.Sprintf("/api/collections/%s/update/json", collection), params)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Post(url, "application/json", bytes.NewBuffer(payload))
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
-//
-//func (d *Document) Commit(collection string) (*Response, error) {
-//
-//	url, err := d.config.
-//		getUrlWithQueryStrings(
-//			fmt.Sprintf("/api/collections/%s/update/json", collection),
-//			DocumentParameters{Commit: true})
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Post(url, "application/json", nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
-//
-//func (d *Document) Delete(collection string) (*Response, error) {
-//	url, err := d.config.getUrl(fmt.Sprintf("/api/collections/%s/update/json", collection))
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp, err := d.config.http.Get(url)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	defer resp.Body.Close()
-//
-//	body, err := ioutil.ReadAll(resp.Body)
-//
-//	var response Response
-//	err = json.Unmarshal(body, &response)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &response, nil
-//}
+	return response, err
+}

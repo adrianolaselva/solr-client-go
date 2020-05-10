@@ -9,7 +9,7 @@ func TestCollectionCreate(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Create(context.Background(), CollectionCreate{
-		Name:                 "collection-test",
+		Name:                 "tests",
 		RouterName:           "compositeId",
 		NumShards:            1,
 		ReplicationFactor: 	  1,
@@ -29,7 +29,7 @@ func TestCollectionReload(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Reload(context.Background(), CollectionReload{
-		Name:           "collection-test",
+		Name:           "tests",
 		Async:          false,
 	})
 	if err != nil {
@@ -45,7 +45,7 @@ func TestCollectionModify(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Modify(context.Background(), CollectionModifyCollection{
-		Collection: "collection-test",
+		Collection: "tests",
 		MaxShardsPerNode:      1,
 	})
 	if err != nil {
@@ -74,7 +74,7 @@ func TestCollectionProp(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.CollectionProp(context.Background(), CollectionProp{
-		Name:           "collection-test",
+		Name:           "tests",
 		PropertyName:   "timestamp",
 		PropertyValue:  "dateTime",
 	})
@@ -91,8 +91,8 @@ func TestCollectionRename(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Rename(context.Background(), CollectionRename{
-		Name:           "collection-test",
-		Target:         "collection-test",
+		Name:           "tests",
+		Target:         "tests",
 	})
 	if err != nil {
 		t.Errorf("failed to rename collection %v", err)
@@ -107,23 +107,23 @@ func TestCollectionMigrate(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Create(context.Background(), CollectionCreate{
-		Name:                 "collection-test-migrate",
+		Name:                 "tests-migrate",
 		NumShards:            1,
 		ReplicationFactor: 	  1,
 		CollectionConfigName: "_default",
 		Async:                false,
 	})
 	if err != nil {
-		t.Errorf("failed to create collection collection-test-migrate %v", err)
+		t.Errorf("failed to create collection tests-migrate %v", err)
 	}
 
 	if response.ResponseHeader.Status != 0 {
-		t.Errorf("failed to create collection collection-test-migrate %v", err)
+		t.Errorf("failed to create collection tests-migrate %v", err)
 	}
 
 	response, err = client.Collection.Migrate(context.Background(), CollectionMigrate{
-		Collection:       "collection-test",
-		TargetCollection: "collection-test-migrate",
+		Collection:       "tests",
+		TargetCollection: "tests-migrate",
 		SplitKey:         "a!",
 		ForwardTimeout:   100000,
 		Async:            false,
@@ -146,7 +146,7 @@ func TestCollectionMigrate(t *testing.T) {
 //	client := NewClient(config)
 //
 //	response, err := client.Collection.Backup(context.Background(), CollectionBackup{
-//		Collection:     "collection-test",
+//		Collection:     "tests",
 //		Name:           backupFilePath,
 //		Location:       "/tmp",
 //		Async:          false,
@@ -170,7 +170,7 @@ func TestCollectionMigrate(t *testing.T) {
 //	client := NewClient(config)
 //
 //	response, err := client.Collection.Backup(context.Background(), CollectionBackup{
-//		Collection:     "collection-test",
+//		Collection:     "tests",
 //		Name:           backupFilePath,
 //		Location:       "/tmp/",
 //		Async:          false,
@@ -203,7 +203,7 @@ func TestCollectionDelete(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Delete(context.Background(), CollectionDelete{
-		Name:           "collection-test",
+		Name:           "tests",
 		Async:          false,
 	})
 	if err != nil {
@@ -219,7 +219,7 @@ func TestCollectionDeleteMigrate(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Delete(context.Background(), CollectionDelete{
-		Name:           "collection-test-migrate",
+		Name:           "tests-migrate",
 		Async:          false,
 	})
 	if err != nil {
