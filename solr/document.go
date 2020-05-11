@@ -49,7 +49,24 @@ func (d *DocumentAPI) Select(ctx context.Context, collection string, query strin
 	return response, err
 }
 
-func (d *DocumentAPI) Update(ctx context.Context, collection string, docs []Document, params *Parameters) (*Response, error) {
+func (d *DocumentAPI) Update(ctx context.Context, collection string, doc Document, params *Parameters) (*Response, error) {
+
+	path := fmt.Sprintf("/api/collections/%s/update/json", collection)
+
+	req, err := d.client.NewRequest(ctx, http.MethodPost, path, doc, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := d.client.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, err
+}
+
+func (d *DocumentAPI) UpdateMany(ctx context.Context, collection string, docs []Document, params *Parameters) (*Response, error) {
 
 	path := fmt.Sprintf("/api/collections/%s/update/json", collection)
 

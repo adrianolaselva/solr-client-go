@@ -36,7 +36,7 @@ func TestDocumentCreate(t *testing.T) {
 		"timestamp": "2020-04-27 16:43:57-0300",
 	})
 
-	response, err = client.Document.Update(context.Background(), "tests", docs, &Parameters{
+	response, err = client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -63,7 +63,7 @@ func TestDocumentCreateBulkWithCommit(t *testing.T) {
 		})
 	}
 
-	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
+	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -90,7 +90,7 @@ func TestDocumentSelectAll(t *testing.T) {
 		})
 	}
 
-	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
+	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
@@ -122,7 +122,7 @@ func TestDocumentDelete(t *testing.T) {
 		"timestamp": "2020-04-27 16:43:57-0300",
 	})
 
-	response, err := client.Document.Update(context.Background(), "tests", docs, &Parameters{
+	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
 		Commit:       true,
 	})
 	if err != nil {
