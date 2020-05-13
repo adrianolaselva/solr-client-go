@@ -133,7 +133,7 @@ type CollectionCreate struct {
 	// If the entire collection can not be fit into the live nodes, no collection
 	// will be created at all. The default maxShardsPerNode value is 1. A value of -1 means
 	// unlimited. If a policy is also specified then the stricter of maxShardsPerNode and policy rules apply.
-	MaxShardsPerNode 		string 		`url:"maxShardsPerNode,omitempty"`
+	MaxShardsPerNode 		int 		`url:"maxShardsPerNode,omitempty"`
 
 	// Allows defining the nodes to spread the new collection across. The format is a
 	// comma-separated list of node_names, such as localhost:8983_solr,localhost:8984_solr,localhost:8985_solr.
@@ -507,7 +507,7 @@ type CollectionRestore struct {
 	// collection, which could lead to too many replicas being created on a single live node. Defining
 	// maxShardsPerNode sets a limit on the number of replicas CREATE will spread to each node. If the
 	// entire collection can not be fit into the live nodes, no collection will be created at all.
-	MaxShardsPerNode 		string 		`url:"maxShardsPerNode,omitempty"`
+	MaxShardsPerNode 		int 		`url:"maxShardsPerNode,omitempty"`
 
 	// When set to true, enables auto addition of replicas on shared file systems. See the section
 	// Automatically Add Replicas in SolrCloud for more details on settings and overrides.
