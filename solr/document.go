@@ -15,6 +15,7 @@ import (
 type Parameters struct {
 	CommitWithin 	int 						`url:"commitWithin,omitempty"`
 	Commit 			bool 						`url:"commit,omitempty"`
+	Version 		bool 						`url:"version,omitempty"`
 	Query 			string 						`url:"q,omitempty"`
 	Delete 			interface{} 				`url:"delete,omitempty"`
 	LiteralId 		string 						`url:"literal.id,omitempty"`
@@ -72,6 +73,42 @@ func (d *DocumentAPI) Update(ctx context.Context, collection string, doc Documen
 func (d *DocumentAPI) UpdateMany(ctx context.Context, collection string, docs []Document, params *Parameters) (*Response, error) {
 
 	path := fmt.Sprintf("/api/collections/%s/update/json", collection)
+
+	req, err := d.client.NewRequest(ctx, http.MethodPost, path, docs, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := d.client.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, err
+}
+
+// ATOMIC UPDATE: Atomic Update/Insert document
+func (d *DocumentAPI) AtomicUpdate(ctx context.Context, collection string, doc Document, params *Parameters) (*Response, error) {
+
+	path := fmt.Sprintf("/solr/%s/update", collection)
+
+	req, err := d.client.NewRequest(ctx, http.MethodPost, path, doc, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := d.client.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, err
+}
+
+// ATOMIC UPDATE MANY: Atomic Update/Insert documents
+func (d *DocumentAPI) AtomicUpdateMany(ctx context.Context, collection string, docs []Document, params *Parameters) (*Response, error) {
+
+	path := fmt.Sprintf("/solr/%s/update", collection)
 
 	req, err := d.client.NewRequest(ctx, http.MethodPost, path, docs, params, nil)
 	if err != nil {
