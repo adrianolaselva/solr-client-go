@@ -178,6 +178,34 @@ Remove collection configuration:
 response, err := client.Config.Delete(context.Background(), "identify-events")
 ```
 
+Atomic Updates:
+
+```go
+var docs []Document
+docs = append(docs, map[string]interface{}{
+		"id": id,
+		"author_s": map[string]interface{}{
+			"set": "Teste 2",
+		},
+		"copies_i": map[string]interface{}{
+			"inc": 5,
+		},
+		"cat_ss": map[string]interface{}{
+			"add": time.Now().Format(time.RFC3339),
+		},
+	})
+
+	response, err = client.Document.AtomicUpdateMany(context.Background(), "identify-events", docs, &Parameters{
+		Commit:       true,
+	})
+```
+
+>Obs: Solr supports several modifiers that atomically update values of a document. This allows updating only specific fields, which can help speed indexing processes in an environment where speed of index additions is critical to the application.
+
+>To use atomic updates, add a modifier to the field that needs to be updated. The content can be updated, added to, or incrementally increased if a number.
+
+>[Atomic update](https://lucene.apache.org/solr/guide/6_6/updating-parts-of-documents.html#UpdatingPartsofDocuments-AtomicUpdates)
+
 ## Versioning
 
 Each version of the client is tagged and the version is updated accordingly.
