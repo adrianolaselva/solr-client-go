@@ -183,21 +183,21 @@ Atomic Updates:
 ```go
 var docs []Document
 docs = append(docs, map[string]interface{}{
-		"id": id,
-		"author_s": map[string]interface{}{
-			"set": "Teste 2",
-		},
-		"copies_i": map[string]interface{}{
-			"inc": 5,
-		},
-		"cat_ss": map[string]interface{}{
-			"add": time.Now().Format(time.RFC3339),
-		},
-	})
+	"id": id,
+	"author_s": map[string]interface{}{
+		"set": "Teste 2",
+	},
+	"copies_i": map[string]interface{}{
+		"inc": 5,
+	},
+	"cat_ss": map[string]interface{}{
+		"add": time.Now().Format(time.RFC3339),
+	},
+})
 
-	response, err = client.Document.AtomicUpdateMany(context.Background(), "identify-events", docs, &Parameters{
-		Commit:       true,
-	})
+response, err = client.Document.AtomicUpdateMany(context.Background(), "identify-events", docs, &Parameters{
+	Commit:       true,
+})
 ```
 
 >Obs: Solr supports several modifiers that atomically update values of a document. This allows updating only specific fields, which can help speed indexing processes in an environment where speed of index additions is critical to the application.
