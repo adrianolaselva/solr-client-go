@@ -15,7 +15,7 @@ func TestDocumentCreate(t *testing.T) {
 		Name:                 "tests",
 		RouterName:           "compositeId",
 		NumShards:            1,
-		ReplicationFactor: 	  1,
+		ReplicationFactor:    1,
 		CollectionConfigName: "_default",
 		Async:                false,
 	})
@@ -37,7 +37,7 @@ func TestDocumentCreate(t *testing.T) {
 	})
 
 	response, err = client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -52,9 +52,9 @@ func TestDocumentCreateBulkWithCommit(t *testing.T) {
 	client := NewClient()
 
 	var docs []Document
-	for i:=0;i<10;i++ {
+	for i := 0; i < 10; i++ {
 		docs = append(docs, map[string]interface{}{
-			"uuid": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
+			"uuid":      fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
 			"iteration": i,
 			"context": map[string]interface{}{
 				"ip": fmt.Sprintf("127.0.0.%v", i),
@@ -64,7 +64,7 @@ func TestDocumentCreateBulkWithCommit(t *testing.T) {
 	}
 
 	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create documents and commit %v", err)
@@ -79,9 +79,9 @@ func TestDocumentSelectAll(t *testing.T) {
 	client := NewClient()
 
 	var docs []Document
-	for i:=0;i<10;i++ {
+	for i := 0; i < 10; i++ {
 		docs = append(docs, map[string]interface{}{
-			"uuid": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
+			"uuid":      fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
 			"iteration": i,
 			"context": map[string]interface{}{
 				"ip": fmt.Sprintf("127.0.0.%v", i),
@@ -91,7 +91,7 @@ func TestDocumentSelectAll(t *testing.T) {
 	}
 
 	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to add documents and commit for execute query %v", err)
@@ -123,7 +123,7 @@ func TestDocumentDelete(t *testing.T) {
 	})
 
 	response, err := client.Document.UpdateMany(context.Background(), "tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -138,7 +138,7 @@ func TestDocumentDelete(t *testing.T) {
 	}
 
 	response, err = client.Document.Delete(context.Background(), "tests", d, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -157,7 +157,7 @@ func TestDocumentDeleteByQuery(t *testing.T) {
 	}
 
 	response, err := client.Document.Delete(context.Background(), "tests", d, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -172,7 +172,7 @@ func TestDocumentExtract(t *testing.T) {
 	client := NewClient()
 
 	_, err := client.Document.Extract(context.Background(), "tests", "../example/lorem-ipsum.pdf", &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to extract pdf document %v", err)
@@ -191,7 +191,7 @@ func TestDocumentDeleteAll(t *testing.T) {
 	}
 
 	response, err := client.Document.Delete(context.Background(), "tests", d, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -202,8 +202,8 @@ func TestDocumentDeleteAll(t *testing.T) {
 	}
 
 	response, err = client.Collection.Delete(context.Background(), CollectionDelete{
-		Name:           "tests",
-		Async:          false,
+		Name:  "tests",
+		Async: false,
 	})
 	if err != nil {
 		t.Errorf("failed to delete collection %v", err)
@@ -221,7 +221,7 @@ func TestAtomicDocumentCreate(t *testing.T) {
 		Name:                 "atomic-tests",
 		RouterName:           "compositeId",
 		NumShards:            1,
-		ReplicationFactor: 	  1,
+		ReplicationFactor:    1,
 		CollectionConfigName: "_default",
 		Async:                false,
 	})
@@ -235,14 +235,14 @@ func TestAtomicDocumentCreate(t *testing.T) {
 
 	var docs []Document
 	docs = append(docs, map[string]interface{}{
-		"id": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
+		"id":       fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
 		"author_s": "Teste",
 		"copies_i": 3,
-		"cat_ss": time.Now().Format(time.RFC3339),
+		"cat_ss":   time.Now().Format(time.RFC3339),
 	})
 
 	response, err = client.Document.AtomicUpdateMany(context.Background(), "atomic-tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -260,15 +260,15 @@ func TestAtomicDocumentAndUpdateCreate(t *testing.T) {
 
 	var docs []Document
 	docs = append(docs, map[string]interface{}{
-		"id": id,
+		"id":       id,
 		"author_s": "Teste",
 		"copies_i": 3,
-		"cat_ss": time.Now().Format(time.RFC3339),
+		"cat_ss":   time.Now().Format(time.RFC3339),
 	})
 
 	response, err := client.Document.AtomicUpdateMany(context.Background(), "atomic-tests", docs, &Parameters{
-		Commit:  	true,
-		Version: 	true,
+		Commit:  true,
+		Version: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -292,7 +292,7 @@ func TestAtomicDocumentAndUpdateCreate(t *testing.T) {
 	})
 
 	response, err = client.Document.AtomicUpdateMany(context.Background(), "atomic-tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create document and commit %v", err)
@@ -307,17 +307,17 @@ func TestAtomicDocumentCreateBulkWithCommit(t *testing.T) {
 	client := NewClient()
 
 	var docs []Document
-	for i:=0;i<10;i++ {
+	for i := 0; i < 10; i++ {
 		docs = append(docs, map[string]interface{}{
-			"id": fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
+			"id":       fmt.Sprintf("%x", md5.Sum([]byte(time.Now().String()))),
 			"author_s": "Teste 2",
 			"copies_i": 3,
-			"cat_ss": time.Now().Format(time.RFC3339),
+			"cat_ss":   time.Now().Format(time.RFC3339),
 		})
 	}
 
 	response, err := client.Document.AtomicUpdateMany(context.Background(), "atomic-tests", docs, &Parameters{
-		Commit:       true,
+		Commit: true,
 	})
 	if err != nil {
 		t.Errorf("failed to create documents and commit %v", err)
@@ -332,8 +332,8 @@ func TestAtomicDocumentDropCollection(t *testing.T) {
 	client := NewClient()
 
 	response, err := client.Collection.Delete(context.Background(), CollectionDelete{
-		Name:           "atomic-tests",
-		Async:          false,
+		Name:  "atomic-tests",
+		Async: false,
 	})
 	if err != nil {
 		t.Errorf("failed to delete collection %v", err)

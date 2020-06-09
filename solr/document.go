@@ -13,17 +13,17 @@ import (
 )
 
 type Parameters struct {
-	CommitWithin 	int 						`url:"commitWithin,omitempty"`
-	Commit 			bool 						`url:"commit,omitempty"`
-	Version 		bool 						`url:"version,omitempty"`
-	Query 			string 						`url:"q,omitempty"`
-	Delete 			interface{} 				`url:"delete,omitempty"`
-	LiteralId 		string 						`url:"literal.id,omitempty"`
+	CommitWithin int         `url:"commitWithin,omitempty"`
+	Commit       bool        `url:"commit,omitempty"`
+	Version      bool        `url:"version,omitempty"`
+	Query        string      `url:"q,omitempty"`
+	Delete       interface{} `url:"delete,omitempty"`
+	LiteralId    string      `url:"literal.id,omitempty"`
 }
 
 type Delete struct {
-	Id 				string 						`json:"id,omitempty"`
-	Query 			string 						`json:"query,omitempty"`
+	Id    string `json:"id,omitempty"`
+	Query string `json:"query,omitempty"`
 }
 
 type Document map[string]interface{}
@@ -37,7 +37,7 @@ func (d *DocumentAPI) Select(ctx context.Context, collection string, query strin
 	path := fmt.Sprintf("/solr/%s/select", collection)
 
 	req, err := d.client.NewRequest(ctx, http.MethodGet, path, nil, &Parameters{
-		Query:	query,
+		Query: query,
 	}, nil)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (d *DocumentAPI) Commit(ctx context.Context, collection string) (*Response,
 	path := fmt.Sprintf("/api/collections/%s/update/json", collection)
 
 	req, err := d.client.NewRequest(ctx, http.MethodPost, path, nil, Parameters{
-		Commit:       true,
+		Commit: true,
 	}, nil)
 	if err != nil {
 		return nil, err
