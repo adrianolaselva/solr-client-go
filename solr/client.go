@@ -4,28 +4,29 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/google/go-querystring/query"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/google/go-querystring/query"
 )
 
 const (
-	DefaultHost = "http://127.0.0.1:8983"
+	DefaultHost        = "http://127.0.0.1:8983"
 	DefaultContentType = "application/json"
 )
 
 type Client struct {
-	client 				*http.Client
-	baseURL 			*url.URL
-	Document 			DocumentAPI
-	Collection 			CollectionAPI
-	Config 				ConfigAPI
-	onRequestCompleted 	RequestCompletionCallback
-	username			string
-	password			string
+	client             *http.Client
+	baseURL            *url.URL
+	Document           DocumentAPI
+	Collection         CollectionAPI
+	Config             ConfigAPI
+	onRequestCompleted RequestCompletionCallback
+	username           string
+	password           string
 }
 
 type RequestCompletionCallback func(*http.Request, *http.Response)
@@ -34,10 +35,10 @@ type RequestCompletionCallback func(*http.Request, *http.Response)
 func NewClient() Client {
 	httpClient := http.DefaultClient
 	baseURL, _ := url.Parse(DefaultHost)
-	
+
 	client := Client{
-		client:             httpClient,
-		baseURL:            baseURL,
+		client:  httpClient,
+		baseURL: baseURL,
 	}
 
 	client.Initialize()
@@ -71,7 +72,7 @@ func (c *Client) SetBasicAuth(username string, password string) *Client {
 }
 
 // SET BASE URL: Ser Base URL
-func (c *Client) SetBaseURL(baseURL string) *Client{
+func (c *Client) SetBaseURL(baseURL string) *Client {
 	c.baseURL, _ = url.Parse(baseURL)
 	c.Initialize()
 	return c
