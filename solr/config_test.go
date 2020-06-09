@@ -17,8 +17,8 @@ func TestCreateConfig(t *testing.T) {
 	client := NewClient()
 	_, err := client.Config.Create(context.Background(), CreateConfig{
 		Create: Config{
-			Name:                   "identify-events.CREATE",
-			BaseConfigSet:          "identify-events",
+			Name:          "identify-events.CREATE",
+			BaseConfigSet: "identify-events",
 		},
 	})
 	if err != nil {

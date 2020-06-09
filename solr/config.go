@@ -7,27 +7,27 @@ import (
 )
 
 const (
-	ActionUpload	=	"UPLOAD"
+	ActionUpload = "UPLOAD"
 )
 
 type Config struct {
-	Name 					string 		`json:"name,omitempty"url:"name,omitempty"`
-	BaseConfigSet 			string		`json:"baseConfigSet,omitempty"`
-	ConfigSetPropImmutable 	bool		`json:"configSetProp.immutable,omitempty"`
+	Name                   string `json:"name,omitempty"url:"name,omitempty"`
+	BaseConfigSet          string `json:"baseConfigSet,omitempty"`
+	ConfigSetPropImmutable bool   `json:"configSetProp.immutable,omitempty"`
 }
 
 type ConfigParameter struct {
-	Action 			string 		`url:"action,omitempty"`
-	Name 			string 		`url:"name,omitempty"`
-	OmitHeader 		bool 		`url:"omitHeader,omitempty"`
+	Action     string `url:"action,omitempty"`
+	Name       string `url:"name,omitempty"`
+	OmitHeader bool   `url:"omitHeader,omitempty"`
 }
 
 type ConfigAPI struct {
-	client 		*Client
+	client *Client
 }
 
 type CreateConfig struct {
-	Create			Config 		`json:"create,omitempty"`
+	Create Config `json:"create,omitempty"`
 }
 
 // LIST: List a Configset
